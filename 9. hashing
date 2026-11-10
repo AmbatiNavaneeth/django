@@ -1,0 +1,47 @@
+What is password hashing?
+Password hashing is the process of converting a password into a one-way hash value so the original password is not stored directly in the database.
+
+For example:
+- User enters password: Nav@12345
+- Django generates a password hash and stores that hash.
+- During login, Django checks the entered password against the stored hash.
+The hash is not meant to be decrypted back into the original password.
+2. How does Django handle passwords?
+User enters a password
+Django password hasher
+Encoded password hash stored in database
+
+During login, Django verifies the entered password against the stored hash.
+
+Django uses secure password-hashing algorithms configured through PASSWORD_HASHERS. Its default hasher is PBKDF2 with SHA-256 in standard Django configurations.
+3. Important Django functions
+A. make_password()
+Generates a Django-formatted password hash.
+from django.contrib.auth.hashers import make_passwordhashed_password = make_password("Nav@12345")print(hashed_password)
+
+The output is a hash string containing information such as the algorithm, salt, and derived hash. The exact value varies.
+B. check_password()
+Checks whether a raw password matches a stored hash.
+from django.contrib.auth.hashers import check_passwordresult = check_password("Nav@12345", hashed_password)print(result)
+
+Output:
+True
+
+If the entered password is incorrect, it returns False.
+
+Important: check_password() verifies the password; it does not decrypt the hash.
+4. How to handle passwords during user registration
+When using Django's built-in authentication system, create users through the provided user methods:
+from django.contrib.auth.models import Useruser = User.objects.create_user(    username="nav",    password="Nav@12345")
+
+Django hashes the password automatically.
+
+For login, use Django's authentication function:
+from django.contrib.auth import authenticateuser = authenticate(    username="nav",    password="Nav@12345")if user is not None:    print("Login successful")else:    print("Invalid credentials")
+
+This is preferable to manually comparing passwords or saving plain-text passwords.
+5. Hashing vs encryption
+Hashing	Encryption
+Designed to be one-way.	Designed to be reversible with the appropriate key.
+Used for password verification.	Used when data must later be recovered.
+No decryption step.	Decryption recovers the original data.
