@@ -1,0 +1,65 @@
+Topic 6: Django Admin Panel
+1. What is the Django Admin Panel?
+Definition: The Django Admin Panel is a built-in web interface that allows authorized users to manage database records without writing separate frontend pages.
+
+For example, in an e-commerce application, an admin can:
+- Add new products.
+- View all products.
+- Update product prices.
+- Delete products.
+- Manage users and orders, depending on permissions.
+2. How to access the Admin Panel
+Step 1: Register your model
+Suppose you have a Product model in models.py.
+
+Open admin.py inside your Django app:
+from django.contrib import adminfrom .models import Productadmin.site.register(Product)
+
+
+
+What does this do?
+
+admin.site.register(Product) tells Django to make the Product model available through the admin interface.
+Step 2: Create an admin user
+Run this command in your terminal, from the folder containing manage.py:
+python manage.py createsuperuser
+
+
+Django asks you for a username, email (depending on configuration), and password.
+
+This creates an administrator account.
+Step 3: Run the server
+python manage.py runserver
+
+
+Open this URL in your browser:
+
+http://127.0.0.1:8000/admin/
+
+Log in with your superuser credentials. You should see the registered Product model.
+3. Customize the Admin Panel
+Instead of showing only the model name, you can customize how products appear.
+from django.contrib import adminfrom .models import Product@admin.register(Product)class ProductAdmin(admin.ModelAdmin):    list_display = ('id', 'name', 'price')    search_fields = ('name',)    list_filter = ('price',)    ordering = ('name',)
+
+
+
+Here's what each option means:
+Option	Purpose
+list_display	Columns shown in the list
+search_fields	Fields searchable using the search box
+list_filter	Adds filters in the sidebar
+ordering	Sets the default ordering
+
+Note: list_filter = ('price',) works for an integer field, though filters are usually most useful for fields with a manageable number of distinct values.
+4. Important interview questions
+Question 1: What is the Django Admin Panel, and how do you register a model in it?
+
+It is a built-in interface for managing model data; use admin.site.register(Model) in admin.py.
+
+
+It is a database migration command.
+
+It automatically creates a React frontend.
+
+
+Interview tip: Know the difference between createsuperuser and admin.site.register(). The first creates an admin account; the second makes a model available in the admin interface.
