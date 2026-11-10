@@ -1,0 +1,48 @@
+What is email sending in Django?
+Django provides a built-in email system that lets your application send emails to users.
+
+Real-time examples:
+- Registration confirmation emails.
+- Password reset links.
+- Order confirmation emails.
+- Notifications when an application is submitted.
+2. How to send an email
+Django provides the send_mail() function.
+from django.core.mail import send_mailfrom django.http import HttpResponsedef send_welcome_email(request):    send_mail(        subject="Welcome to our website",        message="Your account has been created successfully.",        from_email="admin@example.com",        recipient_list=["user@example.com"],        fail_silently=False,    )    return HttpResponse("Email sent successfully")
+
+
+
+Explanation
+Parameter	Purpose
+subject	Email subject
+message	Plain-text email body
+from_email	Sender's email address
+recipient_list	List of recipient email addresses
+fail_silently=False	Raises an exception if sending fails
+
+Important: This code requires email settings to be configured. Otherwise, the email may not reach the recipient.
+3. Configure email settings
+For development, you can print emails in your terminal instead of sending real emails.
+
+In settings.py:
+EMAIL_BACKEND = (    "django.core.mail.backends.console.EmailBackend")
+
+
+
+When send_mail() runs, the email contents appear in the terminal.
+
+For actual emails, configure an SMTP server with its host, port, credentials, TLS settings, and sender address. Keep credentials in environment variables rather than hardcoding them.
+4. Interview questions
+Question: Which Django function is commonly used to send a basic email?
+
+send_mail()
+
+
+send_session()
+
+
+create_email_model()
+
+
+
+Interview-ready answer: “Django provides send_mail() from django.core.mail to send emails. We configure an email backend, specify the subject, message, sender, and recipient list, and then call the function.”
