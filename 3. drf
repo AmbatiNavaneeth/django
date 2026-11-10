@@ -1,0 +1,52 @@
+What is Django REST Framework?
+Definition: Django REST Framework (DRF) is a toolkit built on Django that helps us develop REST APIs easily.
+
+Imagine you're building a shopping application:
+- Frontend: React
+- Backend: Django
+- Database: MySQL
+React needs product information from Django. DRF helps Django expose that information through APIs, usually in JSON format.
+2. How does it work?
+React frontend
+
+Requests product data
+
+Django REST Framework
+
+API view and serializer
+
+Django ORM → Database
+
+Reads or modifies product records
+
+
+For example, React sends a request to:
+
+GET /api/products/
+
+Django retrieves the products, DRF converts the data to JSON, and React receives the response.
+3. Why do we need DRF?
+Without DRF, Django can still build APIs, but you often need to handle JSON conversion, validation, and API responses more manually.
+
+DRF provides useful features such as:
+- Serializers: Convert model data to JSON-compatible data and validate incoming data.
+- API views: Handle API requests and responses.
+- Authentication and permissions: Control who can access an API.
+- Browsable API: Test endpoints through a web interface.
+- Pagination: Return large datasets in smaller pages.
+4. What is a serializer?
+A serializer is one of the most important DRF concepts.
+
+Suppose your database contains this product:
+Product(name="Laptop", price=50000)
+
+
+
+The database record is a Django model instance. A serializer can convert it into JSON-compatible data:
+{
+    "name": "Laptop",
+    "price": 50000
+}
+
+
+It can also validate incoming JSON data before allowing it to be saved.
