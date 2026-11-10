@@ -1,0 +1,114 @@
+Sessions in Django
+1. What is a session?
+A session allows a web application to remember information about a particular user across multiple requests.
+HTTP is stateless, meaning each request is independent by default. Sessions help Django maintain information between requests.
+Interview-ready answer: 
+“Django sessions maintain user-specific information across requests. The default database-backed session engine stores session data server-side, and the browser typically stores a session ID in a cookie. 
+We use request.session to set, retrieve, and delete session values.”
+
+
+A session is a secure way for a website to remember things about you by keeping a locked diary on the website's server and giving your browser a single key to unlock it.
+If a cookie is like a visitor badge you wear on your shirt, a session is like a luggage storage counter at a hotel. The hotel keeps your heavy bags safely behind the counter (the server) and just hands you a tiny plastic ticket (the session ID). As long as you show that ticket, they can pull up exactly which bags belong to you.
+
+Why do we need Sessions if we already have Cookies?
+
+Cookies have two big limitations:
+1. They aren't safe for sensitive data: Anyone who looks at your computer can open your browser settings and read your cookies. You can't put a user's password or credit card info there.
+2. They are too small: Cookies can only hold a very tiny amount of text.
+A session solves this. It allows Django to save massive, sensitive data safely on the server, while your browser only has to hold onto one tiny, harmless tracking number called a Session ID.
+
+Who creates it and how does it work?
+
+Django (the website) creates both the session and the key.
+Here is exactly how Django handles creating, reading, and destroying a session behind the scenes in simple terms:
+
+1. Setting Session Data (Creating the Diary & Key)
+
+When a user logs in, Django creates a new row in its database (the diary). It puts the user's data there. Then, it generates a random string of numbers and letters (the key/Session ID) and uses a cookie to sneak that key into the user's browser.
+python
+# In Django views:
+# You just treat request.session like a normal Python dictionary!
+request.session['user_id'] = 42
+request.session['is_premium'] = True
+# Django automatically saves this to the DB and sends the key to the browser.
+Use code with caution.
+
+2. Getting Session Data (Matching the Key to the Diary)
+
+When the user clicks onto the next page, their browser automatically sends that tiny Session ID key back to Django. Django takes the key, looks through its server database, finds the matching diary row, and instantly knows exactly who the user is.
+python
+# In Django views:
+# Django automatically reads the incoming key and grabs the right data
+if request.session.get('is_premium'):
+    # Show premium content
+Use code with caution.
+
+3. Deleting Session Data (Tearing up the Diary & Key)
+
+When the user logs out, Django wipes out that diary row from the server database and tells the browser to delete the cookie key. The key becomes completely useless.
+python
+# In Django views:
+request.session.flush() 
+# This completely deletes the session data on the server and clears the cookie.
+Use code with caution.
+
+Quick Comparison: Cookie vs. Session
+Feature	Cookie	Session
+Where is data stored?	On the User's Browser (Your PC)	On the Website Server (Database)
+Data Security	Low (Users can see and edit it)	High (Users cannot see or touch it)
+Data Size	Very small (Max 4KB)	Virtually unlimited
+Relationship	Independent	Depends on a cookie to pass the Session ID key back and forth
+
+
+Real-time example: A user logs into an e-commerce website. When they visit another page, the website remembers that they are logged in.
+2. How do sessions work?
+1. User logs in
+
+2. Django stores session data server-side
+Default: database-backed sessions
+
+3. Browser receives a session ID cookie
+
+4. Browser sends the session ID with future requests
+Django identifies the session and retrieves its data
+
+3. How to set and retrieve session data
+In a Django view:
+from django.http import HttpResponsedef set_session(request):    request.session["username"] = "Nav"    return HttpResponse("Session created")def get_session(request):    username = request.session.get("username", "Guest")    return HttpResponse(f"Welcome {username}")
+
+
+Explanation:
+- request.session["username"] = "Nav" stores a value in the session.
+- request.session.get() retrieves the value.
+- "Guest" is returned if the key doesn't exist.
+4. How to delete session data
+Delete one item:
+del request.session["username"]
+
+
+Safer version if the key might not exist:
+request.session.pop("username", None)
+
+Clear all data in the current session:
+request.session.flush()
+
+flush() removes the current session data and session cookie, effectively clearing the current session.
+5. Important session settings
+Django provides session settings in settings.py.
+Setting	Purpose
+SESSION_ENGINE	Specifies where session data is stored.
+SESSION_COOKIE_AGE	Controls the session cookie's maximum age in seconds.
+SESSION_COOKIE_HTTPONLY	Prevents JavaScript from accessing the session cookie.
+SESSION_COOKIE_SECURE	Restricts the session cookie to HTTPS.
+
+Django's default session engine uses the database, so make sure the session migrations have been applied.
+6. Cookies vs Sessions
+Cookies	Sessions
+Stored in the browser.	Session data is server-side by default.
+Can store preferences and identifiers.	Can store user-specific session information.
+Browser sends eligible cookies with requests.	Browser usually sends a session ID cookie to identify the session.
+
+Interview tip: Don't say that all session data is stored in cookies. With Django's default database-backed sessions, the cookie normally contains the session identifier, while the session data lives in the database.
+
+
+
