@@ -1,0 +1,99 @@
+Serializers in Django REST Framework
+1. What is a serializer?
+A serializer converts Django model objects into JSON-compatible data and validates incoming data before saving it to the database.
+
+There are two main jobs:
+1. Serialization: Python/Django object → JSON-compatible data.
+2. Deserialization: Incoming data → validated Python data that can be used to create or update an object.
+Example:
+Django model object
+
+Product(name="Laptop", price=50000)
+
+Serializer
+
+JSON response
+
+{"name": "Laptop", "price": 50000}
+
+
+Why is this needed? The database contains Django model objects, but a frontend such as React typically needs JSON data from the API.
+2. Types of serializers
+DRF provides two commonly used types.
+Serializer	ModelSerializer
+Define fields manually.	Generates fields from a Django model.
+More control over field definitions.	Less repetitive code.
+Useful for custom data structures.	Commonly used for CRUD APIs.
+
+A. Using Serializer
+Suppose you have this model in models.py:
+from django.db import modelsclass Product(models.Model):    name = models.CharField(max_length=100)    price = models.IntegerField()
+
+
+
+Create serializers.py inside your Django app:
+from rest_framework import serializersclass ProductSerializer(serializers.Serializer):    name = serializers.CharField(max_length=100)    price = serializers.IntegerField()
+
+
+
+Here, we manually define the fields and their validation rules.
+B. Using ModelSerializer
+This is commonly used in real projects.
+from rest_framework import serializersfrom .models import Productclass ProductSerializer(serializers.ModelSerializer):    class Meta:        model = Product        fields = '__all__'
+
+
+
+Understand these three things:
+- ModelSerializer: Generates serializer fields based on the model.
+- model = Product: Specifies which model to use.
+- fields = '__all__': Includes all model fields in the serializer.
+You can also specify selected fields:
+fields = ['id', 'name', 'price']
+
+
+
+This exposes only those fields through this serializer.
+3. How does a serializer work in an API?
+Suppose the frontend sends this request body:
+{
+    "name": "Laptop",
+    "price": 50000
+}
+
+
+The serializer validates the incoming data and, when used with ModelSerializer, can create the database record using:
+serializer = ProductSerializer(data=request.data)if serializer.is_valid():    serializer.save()
+
+
+
+What happens here?
+1. request.data contains the incoming request body.
+2. is_valid() checks the data against serializer validation rules.
+3. save() creates a model instance when the serializer has been initialized with new data and validation succeeds.
+For an update, you pass the existing instance to the serializer:
+serializer = ProductSerializer(    instance=product,    data=request.data)if serializer.is_valid():    serializer.save()
+
+
+
+For a complete update, all required fields generally need to be provided. Partial updates can use partial=True.
+4. What if invalid data arrives?
+Suppose the API receives:
+{
+    "name": "Laptop",
+    "price": "abc"
+}
+
+
+The price field expects an integer. The serializer can reject this input.
+serializer.is_valid()print(serializer.errors)
+
+
+
+Example error:
+{'price': ['A valid integer is required.']}
+
+
+
+The exact wording can vary by field and DRF version.
+
+Important interview point: Always check is_valid() before calling save() on a serializer initialized with incoming data.
