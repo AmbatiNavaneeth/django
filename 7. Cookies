@@ -1,0 +1,102 @@
+Cookies in Django
+1. What is a cookie?
+A cookie is a small piece of data stored in the user's browser by a website.
+The browser can send that cookie back to the server with subsequent requests, depending on its settings and scope.
+Real-time example: You select a preferred language on a website. The website stores it in a cookie so it can remember your preference when you visit again.
+Other uses include remembering preferences, maintaining session identifiers, and supporting certain authentication flows.
+
+How do cookies work?
+1. Browser sends request
+2. Django sends response with Set-Cookie
+3. Browser stores the cookie
+4. Browser sends the cookie with eligible future requests
+
+
+3. How to set a cookie in Django
+In views.py:
+from django.http import HttpResponsedef set_cookie(request):    response = HttpResponse("Cookie created")    response.set_cookie("username", "Nav")    return response
+
+Explanation:
+- HttpResponse() creates the response.
+- set_cookie("username", "Nav") asks the browser to store a cookie named username with value Nav.
+- Returning the response sends the cookie-setting instruction to the browser.
+4. How to read a cookie
+from django.http import HttpResponsedef get_cookie(request):    username = request.COOKIES.get("username", "Guest")    return HttpResponse(f"Welcome {username}")
+
+Here, request.COOKIES contains cookies received from the browser. .get() returns "Guest" if the cookie is missing.
+5. How to delete a cookie
+def delete_cookie(request):    response = HttpResponse("Cookie deleted")    response.delete_cookie("username")    return response
+
+Django sends a response that expires the cookie in the browser, provided the cookie's matching scope is used.
+
+6. Important cookie settings
+response.set_cookie(    "username",    "Nav",    max_age=3600,    httponly=True,    secure=True,    samesite="Lax")
+
+Setting	Meaning
+max_age=3600	Cookie lasts up to 3600 seconds.
+httponly=True	JavaScript cannot access it through document.cookie.
+secure=True	Browser sends it only over HTTPS.
+samesite="Lax"	Restricts some cross-site cookie sending.
+
+For local HTTP development, secure=True may prevent the browser from sending the cookie, so use HTTPS or configure it appropriately for your environment.
+
+Security tip: Don't store passwords or sensitive secrets in ordinary cookies. Cookies can be modified by clients unless properly protected, and signing a cookie does not automatically make its contents confidential.
+7. Cookies vs Sessions
+Cookies	Sessions
+Stored in the browser.	Django's default session data is stored server-side in the database.
+Sent with eligible HTTP requests.	A session ID is typically stored in a cookie and used to identify the session.
+Can store preferences.	Commonly used for login state and user-specific data.
+
+
+A cookie is a tiny text file that a website places on your computer or phone. Think of it like a digital visitor badge or a sticky note that the website gives you so it can remember who you are.
+The website creates it, but your web browser (like Chrome or Safari) is the one that holds onto it and shows it back to the website every time you click a new page.
+
+Why do we need cookies? (The Purpose)
+
+Websites are completely forgetful (stateless). Every time you click a link or refresh a page, the website completely forgets who you are. It treats you like a total stranger.
+Cookies fix this by saving small pieces of information, such as:
+• Keeping you logged in: So you don't have to type your password on every single page.
+• Shopping carts: So the website remembers what items you added while you keep browsing.
+• Preferences: Keeping your dark mode setting or language preference turned on.
+
+Who creates it: The User or the Website?
+
+The website creates the cookie.
+However, because the website code runs on a server far away, it has to ask your browser to save, read, or throw away that cookie. That is where set_cookie, get_cookie, and delete_cookie come in.
+Here is how those three actions work in simple terms using Django:
+
+1. set_cookie (The Website gives you the badge)
+
+When you log in or change a setting, your Django server decides what needs to be remembered. It sends a response back to your browser with instructions: "Hey browser, please save a text file named 'theme' with the value 'dark' for this user."
+python
+# In Django views:
+response = render(request, 'home.html')
+response.set_cookie('theme', 'dark')  # Telling the browser to save it
+return response
+Use code with caution.
+
+2. get_cookie (The Website reads your badge)
+
+The next time you visit a page, your browser automatically attaches that cookie to your request. Django reads it to figure out how to customize the page for you: "Ah, I see this browser's cookie says 'dark'. Let me show them the dark mode version of the site."
+python
+# In Django views:
+user_theme = request.COOKIES.get('theme')  # Reading what the browser sent us
+Use code with caution.
+
+3. delete_cookie (The Website tears up the badge)
+
+When you log out or reset your settings, Django tells your browser to destroy the cookie: "Hey browser, you can throw away that 'theme' cookie now."
+python
+# In Django views:
+response = render(request, 'logout.html')
+response.delete_cookie('theme')  # Telling the browser to erase it
+return response
+Use code with caution.
+
+Summary of Who Does What:
+
+• Django (The Website): Acts as the boss. It commands what to write, read, or delete.
+• The Browser (Your Computer): Acts as the notebook. It actually executes the set, get, and delete actions on your physical device based on Django's commands.
+
+
+
