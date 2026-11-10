@@ -1,0 +1,54 @@
+Topic 1: Django CRUD Operations
+1. What is CRUD?
+CRUD stands for four basic operations used to manage data in a database.
+
+C — Create
+Add a new record to the database.
+Example: Add a new product.
+
+R — Read
+Retrieve existing records.
+Example: Display all products.
+
+U — Update
+
+Modify an existing record.
+Example: Change a product's price.
+
+D — Delete
+Remove a record from the database.
+Example: Delete a discontinued product.
+
+2. How do we implement CRUD in Django?
+Django CRUD generally involves three things:
+- Model: Defines the database table and its fields.
+- View: Handles the request and performs the operation.
+- ORM: Lets Python code interact with the database without writing SQL for every operation.
+For example, let's use a Product model.
+# models.pyfrom django.db import modelsclass Product(models.Model):    name = models.CharField(max_length=100)    price = models.IntegerField()
+
+After defining the model, create and apply migrations:
+python manage.py makemigrations
+python manage.py migrate
+
+Create — add a product
+Product.objects.create(name="Laptop", price=50000)
+
+This creates a new record in the database.
+Read — retrieve products
+Product.objects.all()
+
+This returns all products as a QuerySet.
+Update — modify a product
+product = Product.objects.get(id=1)product.price = 55000product.save()
+
+This fetches product 1, changes its price, and saves the change.
+Delete — remove a product
+product = Product.objects.get(id=1)product.delete()
+
+This deletes the selected product from the database.
+3. Interview questions — practise aloud
+Question 1: What is CRUD in Django?
+
+Try answering in your own words before revealing the sample answer.
+Hide sample answerCRUD stands for Create, Read, Update, and Delete. In Django, we use models and the Django ORM to create, retrieve, modify, and delete database records. These operations are commonly handled through Django views or REST API endpoints.
