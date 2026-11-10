@@ -1,0 +1,69 @@
+Topic 2: Django ORM Methods
+1. What is ORM?
+ORM stands for Object-Relational Mapping.
+
+Django ORM allows us to interact with a database using Python code instead of writing SQL queries manually.
+
+For example, instead of writing SQL:
+SELECT * FROM product WHERE price > 1000;
+
+
+We can write Python:
+Product.objects.filter(price__gt=1000)
+
+
+
+Both retrieve products whose price is greater than 1000.
+2. Important ORM methods for interviews
+Assume we have this model:
+class Product(models.Model):    name = models.CharField(max_length=100)    price = models.IntegerField()    stock = models.IntegerField(default=0)
+
+
+
+Method	Purpose	Example
+all()	Get all records	Product.objects.all()
+get()	Get one matching record	Product.objects.get(id=1)
+filter()	Get matching records	Product.objects.filter(price=500)
+exclude()	Get records that don't match	Product.objects.exclude(price=500)
+create()	Insert a record	Product.objects.create(name="Phone", price=20000)
+update()	Update matching records	Product.objects.filter(id=1).update(price=25000)
+delete()	Delete matching records	Product.objects.filter(id=1).delete()
+order_by()	Sort records	Product.objects.order_by("price")
+count()	Count matching records	Product.objects.count()
+exists()	Check whether records exist	Product.objects.filter(price=500).exists()
+first()	Get the first result or None	Product.objects.all().first()
+last()	Get the last result or None	Product.objects.all().last()
+
+Important differences
+get() vs filter()
+- get() returns one object. It raises an exception if no object matches or multiple objects match.
+- filter() returns a QuerySet, even if no records match.
+save() vs update()
+product = Product.objects.get(id=1)product.price = 30000product.save()
+
+
+
+This modifies a model instance and saves it.
+Product.objects.filter(id=1).update(price=30000)
+
+
+
+This updates matching rows directly in the database without calling each model instance's save() method.
+3. Field lookups
+Field lookups help you filter records based on conditions.
+Lookup	Meaning	Example
+exact	Exact match	filter(name__exact="Phone")
+gt	Greater than	filter(price__gt=1000)
+gte	Greater than or equal	filter(price__gte=1000)
+lt	Less than	filter(price__lt=1000)
+lte	Less than or equal	filter(price__lte=1000)
+contains	Contains text	filter(name__contains="Phone")
+icontains	Case-insensitive contains	filter(name__icontains="phone")
+in	Matches any value in a collection	filter(id__in=[1, 2, 3])
+
+For example:
+Product.objects.filter(price__gte=1000)
+
+
+
+Returns products priced at 1000 or more.
