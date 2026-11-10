@@ -1,0 +1,75 @@
+Custom Validators and Field Validation in Django REST Framework (DRF). This is useful for interviews because it shows how you prevent invalid data from entering your database.
+1. What is validation?
+Validation is the process of checking whether incoming data satisfies the required rules before accepting or saving it.
+
+For example, in an e-commerce application:
+- Product price must not be negative.
+- Product name must not be empty.
+- Email must have a valid format.
+- A username must not already exist if usernames must be unique.
+DRF provides built-in validation, and we can define our own rules when needed.
+2. Types of validation
+There are three important approaches to learn.
+A. Field-level validation
+Use validate_<field_name>() to validate one particular field.
+
+Example: The product price must be greater than zero.
+from rest_framework import serializers
+from .models import Product
+class ProductSerializer(serializers.ModelSerializer):   
+          class Meta:        
+              model = Product        
+              fields = "__all__"    def validate_price(self, value):        if value <= 0:            raise serializers.ValidationError(                "Price must be greater than zero."            )        return value
+
+
+How does it work?
+1. DRF receives the incoming price.
+2. It calls validate_price() during serializer validation.
+3. If the price is zero or negative, it raises a validation error.
+4. Otherwise, it returns the valid value.
+For example, if the request contains:
+{
+    "name": "Laptop",
+    "price": -500
+}
+
+
+The API rejects the invalid price instead of saving it.
+B. Object-level validation
+Use validate() when a rule depends on two or more fields together.
+
+Example: A discount price must be lower than the original price.
+def validate(self, data):    price = data.get("price")    discount_price = data.get("discount_price")    if (        price is not None        and discount_price is not None        and discount_price >= price    ):        raise serializers.ValidationError(            "Discount price must be lower than price."        )    return data
+
+
+
+This method belongs inside the serializer class. The example assumes the model and serializer include a discount_price field.
+
+Difference: validate_price() checks the price field individually, whereas validate() can compare the price with the discount price.
+C. Custom validator function
+You can write a separate reusable function and attach it to a serializer field.
+from rest_framework import serializersdef validate_price(value):    if value <= 0:        raise serializers.ValidationError(            "Price must be positive."        )class ProductSerializer(serializers.ModelSerializer):    price = serializers.IntegerField(        validators=[validate_price]    )    class Meta:        model = Product        fields = "__all__"
+
+
+
+Now the validator can be reused on other serializer fields or in other serializers.
+
+Note: This function runs as part of DRF validation; it is different from the serializer method named validate_price().
+3. What about Django model validation?
+Django models also support validation.
+
+For example:
+from django.core.validators import MinValueValidatorfrom django.db import modelsclass Product(models.Model):    name = models.CharField(max_length=100)    price = models.IntegerField(        validators=[MinValueValidator(1)]    )
+
+
+
+This defines a minimum value of 1 for model validation.
+
+An important interview detail: Django does not automatically call full_clean() whenever you call save(). Also, DRF serializer validation and database constraints are separate mechanisms.
+4. Quick comparison
+Type	Use case
+Built-in field validation	Required fields, data types, length and format
+validate_price()	Custom rule for one field
+validate()	Rules involving multiple fields
+Custom validator function	Reusable validation logic
+Model validators	Rules defined at the model level
